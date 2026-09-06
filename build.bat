@@ -34,6 +34,10 @@ set compile_link=/link /IGNORE:4099 /SUBSYSTEM:windows /ENTRY:wmainCRTStartup /N
 
 if not exist "%_build_%" mkdir "%_build_%"
 
+:: Ensure GoogolTech runtime DLLs and config files are present in the build directory
+copy /Y "%third_party%\googol_tech\*.dll" "%_build_%\" >nul 2>&1
+copy /Y "%third_party%\googol_tech\*.cfg" "%_build_%\" >nul 2>&1
+
 pushd %_build_%
 del *.pdb >nul 2>&1
 %compile% %_home_%\code\machine_maker\machine_maker_main.cpp %compile_link% /out:machine_maker.exe || (popd && exit /b 1)

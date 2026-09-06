@@ -23,7 +23,7 @@ void mm_ui_init(void)
     mm_ui_state.spindle_rpm = 12000.0f;
     
     mm_ui_state.show_diagnostics = 1;
-    stbsp_snprintf(mm_ui_state.status_message, sizeof(mm_ui_state.status_message), "System Ready. Controller Disconnected.");
+    stbsp_snprintf(mm_ui_state.status_message, sizeof(mm_ui_state.status_message), "System Ready. Controller Offline (Simulation Mode).");
 }
 
 void mm_ui_update_and_render(void)
@@ -47,13 +47,29 @@ void mm_ui_update_and_render(void)
     Rng2F32 conn_btn_rect = ui_rect(50.0f, 115.0f, 145.0f, 35.0f);
     if (ui_button(conn_btn_rect, mm_ui_state.connected ? "Disconnect" : "Connect GTS"))
     {
-        mm_ui_state.connected = !mm_ui_state.connected;
-        if (mm_ui_state.connected)
+        if (!mm_ui_state.connected)
         {
-            stbsp_snprintf(mm_ui_state.status_message, sizeof(mm_ui_state.status_message), "GTS800 Motion Controller Connected.");
+            // Only initialize hardware upon explicit button click
+            MC_Result res = mc_init(0, "GTS800.cfg");
+            if (res == MC_OK)
+            {
+                mm_ui_state.connected = 1;
+                MC_CardInfo info;
+                mc_card_get_info(&info);
+                stbsp_snprintf(mm_ui_state.status_message, sizeof(mm_ui_state.status_message), 
+                               "GTS800 Card %d Connected (DLL: %s).", info.card_no, info.dll_version);
+            }
+            else
+            {
+                mm_ui_state.connected = 0;
+                stbsp_snprintf(mm_ui_state.status_message, sizeof(mm_ui_state.status_message), 
+                               "[OFFLINE] No GTS card detected (Code: %d). Running in Offline Simulation.", (int)res);
+            }
         }
         else
         {
+            mc_shutdown();
+            mm_ui_state.connected = 0;
             mm_ui_state.servo_enabled = 0;
             stbsp_snprintf(mm_ui_state.status_message, sizeof(mm_ui_state.status_message), "Controller Disconnected.");
         }
@@ -62,15 +78,29 @@ void mm_ui_update_and_render(void)
     Rng2F32 servo_btn_rect = ui_rect(205.0f, 115.0f, 145.0f, 35.0f);
     if (ui_button(servo_btn_rect, mm_ui_state.servo_enabled ? "Disable Servos" : "Enable Servos"))
     {
-        if (mm_ui_state.connected && !mm_ui_state.emergency_stopped)
+        if (!mm_ui_state.emergency_stopped)
         {
             mm_ui_state.servo_enabled = !mm_ui_state.servo_enabled;
+            if (mm_ui_state.connected)
+            {
+                if (mm_ui_state.servo_enabled)
+                {
+                    mc_axis_enable(1);
+                    mc_axis_enable(2);
+                    mc_axis_enable(3);
+                }
+                else
+                {
+                    mc_axis_disable(1);
+                    mc_axis_disable(2);
+                    mc_axis_disable(3);
+                }
+            }
+            
             stbsp_snprintf(mm_ui_state.status_message, sizeof(mm_ui_state.status_message), 
-                           mm_ui_state.servo_enabled ? "Servos Energized." : "Servos Disabled.");
-        }
-        else if (!mm_ui_state.connected)
-        {
-            stbsp_snprintf(mm_ui_state.status_message, sizeof(mm_ui_state.status_message), "Cannot enable servos: Controller offline.");
+                           mm_ui_state.servo_enabled ? 
+                           (mm_ui_state.connected ? "Servos Energized (Axes 1-3)." : "Servos Enabled (Simulated).") : 
+                           "Servos Disabled.");
         }
     }
     
@@ -80,12 +110,16 @@ void mm_ui_update_and_render(void)
         mm_ui_state.emergency_stopped = !mm_ui_state.emergency_stopped;
         if (mm_ui_state.emergency_stopped)
         {
+            if (mm_ui_state.connected)
+            {
+                mc_axes_stop_all(1);
+            }
             mm_ui_state.servo_enabled = 0;
             stbsp_snprintf(mm_ui_state.status_message, sizeof(mm_ui_state.status_message), "EMERGENCY STOP TRIGGERED! Motion halted.");
         }
         else
         {
-            stbsp_snprintf(mm_ui_state.status_message, sizeof(mm_ui_state.status_message), "E-Stop Cleared. Resetting system.");
+            stbsp_snprintf(mm_ui_state.status_message, sizeof(mm_ui_state.status_message), "E-Stop Cleared. Ready to enable.");
         }
     }
     
@@ -102,15 +136,24 @@ void mm_ui_update_and_render(void)
     ui_label(ui_rect(65.0f, 195.0f, 170.0f, 30.0f), buf);
     if (ui_button(ui_rect(250.0f, 195.0f, 60.0f, 30.0f), "X -"))
     {
-        if (mm_ui_state.servo_enabled) mm_ui_state.pos_x -= 1.0f;
+        if (mm_ui_state.servo_enabled)
+        {
+            mm_ui_state.pos_x -= 1.0f;
+            mc_axis_move_rel(1, -1.0, mm_ui_state.feed_rate, 0.5, 0.5);
+        }
     }
     if (ui_button(ui_rect(320.0f, 195.0f, 60.0f, 30.0f), "X +"))
     {
-        if (mm_ui_state.servo_enabled) mm_ui_state.pos_x += 1.0f;
+        if (mm_ui_state.servo_enabled)
+        {
+            mm_ui_state.pos_x += 1.0f;
+            mc_axis_move_rel(1, 1.0, mm_ui_state.feed_rate, 0.5, 0.5);
+        }
     }
     if (ui_button(ui_rect(400.0f, 195.0f, 90.0f, 30.0f), "Zero X"))
     {
         mm_ui_state.pos_x = 0.0f;
+        mc_axis_zero_position(1);
     }
     
     // Axis Y
@@ -118,15 +161,24 @@ void mm_ui_update_and_render(void)
     ui_label(ui_rect(65.0f, 235.0f, 170.0f, 30.0f), buf);
     if (ui_button(ui_rect(250.0f, 235.0f, 60.0f, 30.0f), "Y -"))
     {
-        if (mm_ui_state.servo_enabled) mm_ui_state.pos_y -= 1.0f;
+        if (mm_ui_state.servo_enabled)
+        {
+            mm_ui_state.pos_y -= 1.0f;
+            mc_axis_move_rel(2, -1.0, mm_ui_state.feed_rate, 0.5, 0.5);
+        }
     }
     if (ui_button(ui_rect(320.0f, 235.0f, 60.0f, 30.0f), "Y +"))
     {
-        if (mm_ui_state.servo_enabled) mm_ui_state.pos_y += 1.0f;
+        if (mm_ui_state.servo_enabled)
+        {
+            mm_ui_state.pos_y += 1.0f;
+            mc_axis_move_rel(2, 1.0, mm_ui_state.feed_rate, 0.5, 0.5);
+        }
     }
     if (ui_button(ui_rect(400.0f, 235.0f, 90.0f, 30.0f), "Zero Y"))
     {
         mm_ui_state.pos_y = 0.0f;
+        mc_axis_zero_position(2);
     }
     
     // Axis Z
@@ -134,15 +186,24 @@ void mm_ui_update_and_render(void)
     ui_label(ui_rect(65.0f, 275.0f, 170.0f, 30.0f), buf);
     if (ui_button(ui_rect(250.0f, 275.0f, 60.0f, 30.0f), "Z -"))
     {
-        if (mm_ui_state.servo_enabled) mm_ui_state.pos_z -= 0.5f;
+        if (mm_ui_state.servo_enabled)
+        {
+            mm_ui_state.pos_z -= 0.5f;
+            mc_axis_move_rel(3, -0.5, mm_ui_state.feed_rate, 0.5, 0.5);
+        }
     }
     if (ui_button(ui_rect(320.0f, 275.0f, 60.0f, 30.0f), "Z +"))
     {
-        if (mm_ui_state.servo_enabled) mm_ui_state.pos_z += 0.5f;
+        if (mm_ui_state.servo_enabled)
+        {
+            mm_ui_state.pos_z += 0.5f;
+            mc_axis_move_rel(3, 0.5, mm_ui_state.feed_rate, 0.5, 0.5);
+        }
     }
     if (ui_button(ui_rect(400.0f, 275.0f, 90.0f, 30.0f), "Zero Z"))
     {
         mm_ui_state.pos_z = 0.0f;
+        mc_axis_zero_position(3);
     }
     
     // Home All
@@ -153,9 +214,11 @@ void mm_ui_update_and_render(void)
             mm_ui_state.pos_x = 0.0f;
             mm_ui_state.pos_y = 0.0f;
             mm_ui_state.pos_z = 0.0f;
+            for (short a = 1; a <= 3; ++a) mc_axis_zero_position(a);
             stbsp_snprintf(mm_ui_state.status_message, sizeof(mm_ui_state.status_message), "All axes homed successfully.");
         }
     }
+
     
     //
     //~ Motion Parameters
@@ -180,7 +243,7 @@ void mm_ui_update_and_render(void)
         ui_window_box(diag_rect, "DIAGNOSTICS & TELEMETRY");
         
         ui_label(ui_rect(560.0f, 80.0f, 360.0f, 25.0f), "Subsystem Status:");
-        ui_label(ui_rect(570.0f, 110.0f, 340.0f, 25.0f), mm_ui_state.connected ? "[OK] GTS Motion Card detected" : "[OFFLINE] No motion card");
+        ui_label(ui_rect(570.0f, 110.0f, 340.0f, 25.0f), mc_card_is_open() ? "[OK] GTS Motion Card active" : "[OFFLINE] No motion card");
         ui_label(ui_rect(570.0f, 135.0f, 340.0f, 25.0f), mm_ui_state.servo_enabled ? "[OK] Drives energized" : "[STANDBY] Drives unpowered");
         ui_label(ui_rect(570.0f, 160.0f, 340.0f, 25.0f), mm_ui_state.emergency_stopped ? "[ALERT] E-STOP ACTIVE" : "[OK] Safety loop closed");
         
@@ -188,6 +251,6 @@ void mm_ui_update_and_render(void)
         ui_label(ui_rect(570.0f, 225.0f, 340.0f, 25.0f), "Application: machine_maker/mm_ui.cpp");
         ui_label(ui_rect(570.0f, 250.0f, 340.0f, 25.0f), "Core UI: ui/ui_core.h (Agnostic Wrapper)");
         ui_label(ui_rect(570.0f, 275.0f, 340.0f, 25.0f), "Backend: ui/ui_core.cpp (Raylib + Raygui)");
-        ui_label(ui_rect(570.0f, 300.0f, 340.0f, 25.0f), "Hardware: googol_tech/gts.lib");
+        ui_label(ui_rect(570.0f, 300.0f, 340.0f, 25.0f), "Motion HAL: machine/machine_core.h (GTS Wrapper)");
     }
 }

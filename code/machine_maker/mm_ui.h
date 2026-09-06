@@ -1,7 +1,7 @@
 #ifndef MM_UI_H
 #define MM_UI_H
 
-#include "ui/ui_core.h"
+
 
 // ==============================================================================
 // Machine Maker UI: Application Layer

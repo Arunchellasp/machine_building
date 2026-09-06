@@ -17,6 +17,7 @@
 #include <stddef.h>
 #include <string.h>
 
+
 //
 //~ 2. Third-Party: STB Libraries
 //
@@ -70,6 +71,7 @@
 //
 #include "base/base_inc.h"
 #include "os/os_inc.h"
+#include "machine/machine_core.h"
 #include "ui/ui_core.h"
 #include "mm_ui.h"
 
@@ -78,6 +80,7 @@
 //
 #include "base/base_inc.cpp"
 #include "os/os_inc.cpp"
+#include "machine/machine_core.cpp"
 #include "ui/ui_core.cpp"
 #include "mm_ui.cpp"
 
@@ -96,7 +99,7 @@ int wmain(int argc, wchar_t **argv)
     while (!ui_window_should_close())
     {
         ui_begin_frame();
-        ui_clear_background(UI_COLOR_WHITE);
+        ui_clear_background(UI_COLOR_BG);
         
         // Render Machine Maker interface
         mm_ui_update_and_render();
