@@ -9,6 +9,7 @@
 //
 //~ 1. C Standard Library Headers
 //
+
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -87,6 +88,7 @@
 //
 //~ 8. Application Main Entry Point
 //
+
 int wmain(int argc, wchar_t **argv)
 {
     // Initialize window and rendering subsystem

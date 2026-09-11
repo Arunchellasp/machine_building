@@ -1,7 +1,7 @@
 #ifndef UI_CORE_H
 #define UI_CORE_H
 
-#include "base/base_inc.h"
+
 
 // ==============================================================================
 // UI Core: Backend-Agnostic GUI Abstraction Layer
@@ -44,10 +44,18 @@ ui_color(f32 r, f32 g, f32 b, f32 a)
 #define UI_COLOR_BLACK        ui_color(0.0f, 0.0f, 0.0f, 1.0f)
 #define UI_COLOR_BG           ui_color(0.12f, 0.12f, 0.14f, 1.0f)
 #define UI_COLOR_PANEL_BG     ui_color(0.18f, 0.18f, 0.22f, 1.0f)
+#define UI_COLOR_BAR_BG       ui_color(0.14f, 0.15f, 0.18f, 1.0f)
+#define UI_COLOR_BORDER       ui_color(0.25f, 0.27f, 0.32f, 1.0f)
+#define UI_COLOR_CARD_BG      ui_color(0.16f, 0.17f, 0.20f, 1.0f)
 #define UI_COLOR_ACCENT       ui_color(0.20f, 0.55f, 0.90f, 1.0f)
 #define UI_COLOR_SUCCESS      ui_color(0.20f, 0.75f, 0.35f, 1.0f)
 #define UI_COLOR_DANGER       ui_color(0.85f, 0.25f, 0.20f, 1.0f)
 #define UI_COLOR_WARNING      ui_color(0.95f, 0.70f, 0.15f, 1.0f)
+#define UI_COLOR_TEXT_MUTED   ui_color(0.60f, 0.63f, 0.68f, 1.0f)
+#define UI_COLOR_ACTIVE_ITEM  ui_color(0.22f, 0.35f, 0.55f, 1.0f)
+#define UI_COLOR_LED_OFF      ui_color(0.25f, 0.27f, 0.30f, 1.0f)
+#define UI_COLOR_LED_ON       ui_color(0.20f, 0.85f, 0.40f, 1.0f)
+#define UI_COLOR_LED_ALERT    ui_color(0.90f, 0.25f, 0.20f, 1.0f)
 
 //
 //~ Window & Application Lifecycle
@@ -85,6 +93,7 @@ b32  ui_spinner(Rng2F32 rect, const char *text, int *value, int min_val, int max
 //
 void ui_draw_rect(Rng2F32 rect, Vec4F32 color);
 void ui_draw_rect_outline(Rng2F32 rect, f32 thickness, Vec4F32 color);
+void ui_draw_circle(f32 center_x, f32 center_y, f32 radius, Vec4F32 color);
 void ui_draw_text(const char *text, f32 x, f32 y, f32 font_size, Vec4F32 color);
 void ui_draw_fps(int x, int y);
 

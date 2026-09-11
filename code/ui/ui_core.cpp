@@ -1,4 +1,4 @@
-#include "ui_core.h"
+
 
 // ==============================================================================
 // UI Core Backend: Raylib & Raylib-GUI Implementation
@@ -9,12 +9,15 @@
 //
 // If you ever want to replace Raylib with ImGui, Nuklear, or a custom renderer,
 // you ONLY rewrite this file.
+
 // ==============================================================================
 // Inherits Raylib and Raygui definitions from machine_maker_main.cpp
+
 
 //
 //~ Internal Type Converters
 //
+
 
 static inline Rectangle
 ui__to_raylib_rec(Rng2F32 r)
@@ -27,6 +30,8 @@ ui__to_raylib_rec(Rng2F32 r)
     return out;
 }
 
+
+
 static inline Color
 ui__to_raylib_color(Vec4F32 c)
 {
@@ -38,6 +43,8 @@ ui__to_raylib_color(Vec4F32 c)
     return out;
 }
 
+
+
 //
 //~ Window & Application Lifecycle
 //
@@ -48,6 +55,7 @@ void ui_init(int width, int height, const char *title)
     InitWindow(width, height, title);
     SetTargetFPS(60);
 }
+
 
 b32 ui_window_should_close(void)
 {
@@ -64,10 +72,12 @@ void ui_set_target_fps(int fps)
     SetTargetFPS(fps);
 }
 
+
 f32 ui_get_frame_time(void)
 {
     return GetFrameTime();
 }
+
 
 Vec2F32 ui_get_window_size(void)
 {
@@ -168,6 +178,11 @@ void ui_draw_rect(Rng2F32 rect, Vec4F32 color)
 void ui_draw_rect_outline(Rng2F32 rect, f32 thickness, Vec4F32 color)
 {
     DrawRectangleLinesEx(ui__to_raylib_rec(rect), thickness, ui__to_raylib_color(color));
+}
+
+void ui_draw_circle(f32 center_x, f32 center_y, f32 radius, Vec4F32 color)
+{
+    DrawCircle((int)center_x, (int)center_y, radius, ui__to_raylib_color(color));
 }
 
 void ui_draw_text(const char *text, f32 x, f32 y, f32 font_size, Vec4F32 color)
