@@ -20,8 +20,8 @@ set _home_=..
 set third_party=%_home_%\code\third_party
 
 set cl_warnings=/W4 /wd4201 /wd4267 /wd4244 /wd4576 /wd4005 /wd4245 /wd4310 /wd4100 /wd4018 /wd4189 /wd4996 /wd4146 /wd4505 /wd4864 /wd5054 /wd4701 /wd4457 /wd4305 /wd4309
-:: Added /I%third_party%\stb so both #include "stb/stb_image.h" and #include "stb_image.h" work
-set cl_libs=/I%_home_%\code\ /I%third_party% /I%third_party%\stb /I%third_party%\googol_tech /I%third_party%\raylib\include /I%third_party%\raygui\src
+:: Added /I%third_party%\stb, /I%third_party%\glfw-3.4\include, and /I%third_party%\nuklear
+set cl_libs=/I%_home_%\code\ /I%third_party% /I%third_party%\stb /I%third_party%\googol_tech /I%third_party%\glfw-3.4\include /I%third_party%\nuklear
 set cl_common=/nologo /MT /EHsc /FC /Z7 /Oi /std:c++20 /Zc:strictStrings- /D_CRT_SECURE_NO_WARNINGS %cl_warnings% %cl_libs%
 
 if "%debug%"=="1" (
@@ -30,7 +30,7 @@ if "%debug%"=="1" (
     set compile=call cl /O2 /DBUILD_DEBUG=0 %cl_common%
 )
 
-set compile_link=/link /IGNORE:4099 /SUBSYSTEM:windows /ENTRY:wmainCRTStartup /NODEFAULTLIB:MSVCRT /NODEFAULTLIB:LIBCMTD /NODEFAULTLIB:libucrt.lib /DEFAULTLIB:ucrt.lib /incremental:no %third_party%\googol_tech\gts.lib %third_party%\googol_tech\ExtMdl.lib %third_party%\raylib\lib\raylib.lib opengl32.lib gdi32.lib shell32.lib winmm.lib dwmapi.lib user32.lib advapi32.lib ole32.lib oleaut32.lib
+set compile_link=/link /IGNORE:4099 /SUBSYSTEM:windows /ENTRY:wmainCRTStartup /NODEFAULTLIB:MSVCRT /NODEFAULTLIB:LIBCMTD /NODEFAULTLIB:libucrt.lib /DEFAULTLIB:ucrt.lib /incremental:no %third_party%\googol_tech\gts.lib %third_party%\googol_tech\ExtMdl.lib %third_party%\glfw-3.4\src\Release\glfw3.lib opengl32.lib gdi32.lib shell32.lib winmm.lib dwmapi.lib user32.lib advapi32.lib ole32.lib oleaut32.lib
 
 if not exist "%_build_%" mkdir "%_build_%"
 

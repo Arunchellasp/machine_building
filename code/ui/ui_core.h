@@ -7,7 +7,7 @@
 // UI Core: Backend-Agnostic GUI Abstraction Layer
 // ==============================================================================
 // This header defines the application-facing UI interface.
-// Third-party GUI headers (Raylib, Raygui, ImGui, etc.) MUST NEVER be included here.
+// Third-party GUI headers (Nuklear, GLFW, ImGui, etc.) MUST NEVER be included here.
 // To switch GUI backends, ONLY ui_core.cpp needs to be replaced.
 // ==============================================================================
 

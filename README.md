@@ -1,76 +1,78 @@
-# 🛠️ MSVC Development Environment
+# 🛠️ Machine Maker - CNC & Motion Controller (Nuklear + GLFW)
 
-A lightweight, customizable **Windows development environment** for building C/C++ projects using the **Microsoft Visual Studio (MSVC)** toolchain — powered by simple and efficient **Batch scripts**.
+A modern, adaptable **CNC & Motion Controller HMI** and Windows desktop application built with **Nuklear GUI**, **GLFW 3.4**, and **OpenGL 2**, integrated with the **GoogolTech (GTS)** motion control card platform.
 
-This setup provides developers with a fast, consistent, and scriptable build workflow, designed for productivity, automation, and clean project organization.
-
----
-
-## 🚀 Features
-
-- ⚙️ One-command environment setup (`terminal.bat`)
-- 🧩 Modular build system with reusable batch scripts
-- 🏗️ Fast build execution via MSVC command-line tools
-- 💡 Developer-friendly terminal interface (via Windows Terminal)
-- 🔁 Supports iterative local builds, rebuilds, and testing
-- 🧱 Clean separation of **source (`code/`)**, **build (`build/`)**, and **environment (`local/`)** folders
-- 🧰 Portable — no installation required, just clone and run
-- 📦 Future-ready structure (PowerShell/CMake/Docker support planned)
+Designed using a **data-oriented, layered architecture** with single-translation-unit (unity build) compilation via MSVC.
 
 ---
 
-## 🗂️ Repository Structure
+## 🏛️ Architecture & Layering
 
+```
++-------------------------------------------------------------------------+
+|                  Application Layer: Machine Maker UI                    |
+|                (code/machine_maker/mm_ui.h & mm_ui.cpp)                 |
+|   - Top Bar: Project Badge, Play/Pause/Stop, State Pill, Action Icons   |
+|   - Left Navigation Tree: Status, Motion, Setup hierarchy               |
+|   - Dynamic Content Views: DRO, Motor Telemetry, 16-bit IO, Jog Pendant |
+|   - Bottom Status Bar: GTS800 status, drives, safety loop, telemetry    |
++-------------------------------------------------------------------------+
+                                    |
+                                    v
++-------------------------------------------------------------------------+
+|              Backend-Agnostic UI Core Layer (Pure C API)                |
+|                      (code/ui/ui_core.h)                                |
+|   - ui_button, ui_slider, ui_label, ui_check_box, ui_window_box...      |
+|   - ui_draw_rect, ui_draw_circle, ui_draw_text, ui_draw_fps             |
++-------------------------------------------------------------------------+
+                                    |
+                                    v
++-------------------------------------------------------------------------+
+|                Backend Implementation (code/ui/ui_core.cpp)             |
+|                 Nuklear GUI + GLFW 3.4 + OpenGL 2 Pipeline              |
+|   - Window Lifecycle: glfwInit, glfwCreateWindow, glfwPollEvents        |
+|   - Nuklear Engine: nk_glfw3_init, nk_layout_space, nk_command_buffer   |
+|   - Hardware Acceleration: Standard Windows OpenGL 2 (opengl32.lib)     |
++-------------------------------------------------------------------------+
+                                    |
+                                    v
++-------------------------------------------------------------------------+
+|               Motion Control HAL (code/machine/machine_core.*)          |
+|                   GoogolTech (GTS) Multi-Axis Controller                |
++-------------------------------------------------------------------------+
+```
 
+---
 
+## 🖥️ Layout Features
+
+- **Top Bar**: Highlighted Project Name badge, prominent Play / Pause / Resume / Stop execution controls, State Pill badge (`IDLE`, `RUNNING`, `PAUSED`, `STOPPED`, `E-STOP`), and extensible action icons (Connect GTS, Origin Home, Machine Config, User Login).
+- **Left Navigation Tree**: Subsystem hierarchy (`▼ MACHINE STATUS`, `▼ MOTION CONTROL`, `▼ SYSTEM SETUP`).
+- **Dynamic Center Layout**:
+  - **Overview / DRO**: 4-Axis coordinate readouts (X, Y, Z, A), feed rate and spindle speed sliders with override % readouts, and quick actions.
+  - **Motor Status**: Multi-axis telemetry table (target, actual, error diff, velocity, servo state, Limit+, Limit-, Home, Drive Alarm LEDs, Zero/Clear actions).
+  - **Digital & Analog I/O**: 16-bit General Purpose Inputs (GPI) with sensor LEDs and simulation toggles, and 16-bit General Purpose Outputs (GPO) with interactive actuator toggles.
+  - **Manual Jog**: Virtual pendant with step increments (`0.01 mm`, `0.10 mm`, `1.00 mm`, `10.0 mm`, `Continuous`), D-Pad for X/Y, vertical column for Z, and rotary column for A.
+  - **Machine Config**: GTS controller settings, configuration file path, software travel limits per axis, and save/reload actions.
+  - **Diagnostics & Logs**: Subsystem health checklist and a live audit log console.
+- **Bottom Status Bar**: Multi-segment status display (GTS800 Online/Offline, Drive Power Stage, Safety Loop, Operator, and real-time FPS).
+- **Offline Simulation**: Zero hardware calls at startup; full UI interaction and realistic motion interpolation without requiring physical hardware connected.
 
 ---
 
 ## ⚡ Quick Start
 
 ### 1️⃣ Prerequisites
-
 - **Windows 10 / 11**
-- **Visual Studio Build Tools** or **Visual Studio IDE**
-  - Make sure `cl.exe` is accessible from your Developer Command Prompt
-- **Windows Terminal** (optional but recommended)
-- **Git** (to clone and manage the repository)
+- **MSVC 64-bit (`cl.exe`)** in `PATH` (e.g. via Developer Command Prompt)
 
----
+### 2️⃣ Build
+```cmd
+.\build.bat
+```
 
-### 2️⃣ Clone the Repository
+### 3️⃣ Run
+```cmd
+.\build\machine_maker.exe
+```
 
-```bash
-git clone https://github.com/Arunchellasp/msvc_dev_environment.git
-cd msvc_dev_environment
-
-
-> terminal.bat
-[✔] MSVC environment loaded
-[✔] Path configured: D:\code\msvc_dev_environment
----------------------------------------------------
-Available commands:
- - build.bat      → Compile project
- - rebuild.bat    → Clean + compile
- - clean.bat      → Remove build artifacts
- - run.bat        → Execute target binary
----------------------------------------------------
-
-
-
----
-
-## 💡 Why This README Works
-✔ Clean visual hierarchy (headers, icons, and code blocks)  
-✔ Instantly explains *what, why, and how*  
-✔ Gives structure, usage, and extensibility  
-✔ Projects professionalism — looks good on your GitHub profile  
-✔ Encourages contributions and future expansion  
-
----
-
-Would you like me to include:
-- **Badges** (Build passing, License, Platform, etc.)  
-- A **screenshot or ASCII banner** for your terminal environment?  
-
-I can generate a version with those visual elements next to make it even more “world-class.”

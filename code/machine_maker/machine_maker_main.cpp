@@ -26,14 +26,24 @@
 #include "stb_sprintf.h"
 
 //
-//~ 3. Third-Party: Raylib & Raylib-GUI
+//~ 3. Third-Party: GLFW, OpenGL & Nuklear GUI
 //
-#include "raylib.h"
-#define RAYGUI_IMPLEMENTATION
-#include "raygui.h"
+#include <GLFW/glfw3.h>
+
+#define NK_INCLUDE_FIXED_TYPES
+#define NK_INCLUDE_STANDARD_IO
+#define NK_INCLUDE_STANDARD_VARARGS
+#define NK_INCLUDE_DEFAULT_ALLOCATOR
+#define NK_INCLUDE_VERTEX_BUFFER_OUTPUT
+#define NK_INCLUDE_FONT_BAKING
+#define NK_INCLUDE_DEFAULT_FONT
+#define NK_IMPLEMENTATION
+#define NK_GLFW_GL2_IMPLEMENTATION
+#include "nuklear.h"
+#include "demo/glfw_opengl2/nuklear_glfw_gl2.h"
 
 //
-//~ 4. Platform: Windows Headers (with symbol isolation from Raylib)
+//~ 4. Platform: Windows Headers (with symbol isolation)
 //
 #define Rectangle     __WindowsRectangle
 #define CloseWindow   __WindowsCloseWindow

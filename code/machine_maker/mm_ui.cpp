@@ -1116,7 +1116,7 @@ static void mm_ui__render_tab_diagnostics(Rng2F32 content_rect)
     ui_draw_text(mm_ui_state.emergency_stopped ? "[ALERT] Safety Circuit: E-STOP TRIGGERED" : "[OK] Safety Circuit: Safety loop closed",
                  cur_x + 15.0f, cur_y + 75.0f, 12.0f, mm_ui_state.emergency_stopped ? UI_COLOR_DANGER : UI_COLOR_SUCCESS);
                  
-    ui_draw_text("[OK] Backend Architecture: Core UI (Raylib) + Machine HAL (GoogolTech)",
+    ui_draw_text("[OK] Backend Architecture: Core UI (Nuklear + GLFW) + Machine HAL (GoogolTech)",
                  cur_x + 15.0f, cur_y + 100.0f, 12.0f, UI_COLOR_SUCCESS);
                  
     cur_y += 155.0f;
