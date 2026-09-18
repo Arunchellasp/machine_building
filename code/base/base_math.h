@@ -110,9 +110,6 @@ union Vec2F32
 	F32 v[2];
 };
 
-#define v2f32(x, y) vec_2f32((x), (y))
-internal Vec2F32 vec_2f32(F32 x, F32 y);
-
 union V2i{
     struct {
         i32 x;

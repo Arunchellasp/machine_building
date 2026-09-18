@@ -1,9 +1,4 @@
 #ifndef BASE_TYPES_H
-#define BASE_TYPES_H
-
-#include <stdint.h>
-#include <stddef.h>
-#include <string.h>
 
 typedef int64_t i64;
 typedef int32_t i32;
@@ -601,4 +596,5 @@ bswap_u64(U64 x)
 	return result;
 }
 
+#define BASE_TYPES_H
 #endif //BASE_TYPES_H
